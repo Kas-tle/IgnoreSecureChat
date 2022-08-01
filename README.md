@@ -1,4 +1,4 @@
-# IgnoreSecureChat
+# IgnoreSecureChat [![GitHub release](https://img.shields.io/github/release/Kas-tle/IgnoreSecureChat.svg)](https://GitHub.com/PKas-tle/IgnoreSecureChat/releases/)
 
 A Java resource pack that clears insecure chat formatting
 

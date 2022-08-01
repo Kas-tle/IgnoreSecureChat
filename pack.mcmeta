@@ -1,0 +1,7 @@
+{
+    "pack": {
+        "pack_format": 9,
+        "description": "Clears insecure chat formatting",
+        "version": "1.0.0"
+    }
+}

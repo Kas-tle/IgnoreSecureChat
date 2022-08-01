@@ -1,0 +1,46 @@
+name: Push Pack
+
+on:
+    push:
+        paths:
+            - "pack.mcmeta"
+
+jobs:
+  lint:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Lint Code Base
+        run: find . -type f \( -iname \*.json -o -iname \*.mcmeta \) -print0 | while IFS= read -r -d '' line; do echo Validating ${line} && jq empty ${line} || exit 1; done && echo All JSON files are valid
+  build:
+    name: Compress and Send Pack
+    needs: [lint]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Get pack version from pack.mcmeta
+      id: lookupPackVersion
+      run: echo "::set-output name=PACK_VERSION::$(jq -r .pack.version pack.mcmeta)"
+    - name: Minify JSON
+      run: find . -type f \( -iname \*.json -o -iname \*.mcmeta \) -print0 | while IFS= read -r -d '' line; do jq -c 'del(.credit, .groups)' ${line} > ${line}.tmp && mv ${line}.tmp ${line}; done
+    - name: Compress pack
+      run: zip -8 -r -X  IgnoreSecureChat.zip *
+    - name: Generate release diff
+      run: git fetch --tags --force && git log --pretty=format:"* %s (%h)" ${{ github.event.before }}..${{ github.event.after }} > release_notes.md
+    - name: Create release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: IgnoreSecureChat.zip
+        allowUpdates: true
+        bodyFile: "release_notes.md"
+        draft: false
+        prerelease: false
+        tag: ${{ steps.lookupPackVersion.outputs.PACK_VERSION }}
+        token: ${{ secrets.GITHUB_TOKEN }}

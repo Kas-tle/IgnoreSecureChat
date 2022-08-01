@@ -2,6 +2,6 @@
     "pack": {
         "pack_format": 9,
         "description": "Hides insecure chat formatting hovertext and indicators",
-        "version": "1.0.0"
+        "version": "1.0.1"
     }
 }
